@@ -16,6 +16,7 @@ from socket import *
 
 import threading
 
+from math import *
 
 FPS = 30
 WINDOWWIDTH = 800
@@ -57,49 +58,45 @@ def start(player):
 	clock = pygame.time.Clock()
 	fps = clock.tick(30) / 1000.0
 
+
 	while True:
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				exit()
 			if event.type == KEYDOWN:
-				if event.key == K_UP:
+				if event.key == K_w:
 					ship1.moveUp()
-				elif event.key == K_DOWN:
+				elif event.key == K_s:
 					ship1.moveDown()
-				elif event.key == K_LEFT:
+				elif event.key == K_a:
 					ship1.moveLeft()
-				elif event.key == K_RIGHT:
+				elif event.key == K_d:
 					ship1.moveRight()
 				
-				elif event.key == K_w:
-					l=laser(ship1.getX(),ship1.getY()-20,Hspeed,Vspeed,0)
+			if event.type == MOUSEBUTTONDOWN:
+
+				mouse_p = pygame.mouse.get_pos()
+				mouse_x = mouse_p[0]
+				mouse_y = mouse_p[1]
+				x = ship1.getX()
+				y = ship1.getY()
+				try:
+					rads = atan2((y-mouse_y ),(x-mouse_x))
+					
+					l = laser(ship1.getX(),ship1.getY(),Hspeed,Vspeed,rads)
 					laserlist.append(l)
-					clientsocket.send(str(ship1.getX())+":"+str(ship1.getY()-20)+':'+str(player)+':laser:0')
+					clientsocket.send(str(ship1.getX())+":"+str(ship1.getY())+':'+str(player)+':laser:'+str(rads))
 
-				elif event.key == K_d:
-					l=laser(ship1.getX()+20,ship1.getY(),Hspeed,Vspeed,1)
-					laserlist.append(l)
-					clientsocket.send(str(ship1.getX()+20)+":"+str(ship1.getY())+':'+str(player)+':laser:1')
-
-				elif event.key == K_s:
-					l=laser(ship1.getX(),ship1.getY()+20,Hspeed,Vspeed,2)
-					laserlist.append(l)
-					clientsocket.send(str(ship1.getX())+":"+str(ship1.getY()+20)+':'+str(player)+':laser:2')
-
-				elif event.key == K_a:
-					l=laser(ship1.getX()-20,ship1.getY(),Hspeed,Vspeed,3)
-					laserlist.append(l)
-					clientsocket.send(str(ship1.getX()-20)+":"+str(ship1.getY())+':'+str(player)+':laser:3')
-
-
+				except ZeroDivisionError:
+					print 'YOLO'
 			elif event.type == KEYUP:
-				if event.key == K_UP:
+				if event.key == K_w:
 					ship1.verticalSlow()
-				if event.key == K_DOWN:
+				if event.key == K_s:
 					ship1.verticalSlow()
-				if event.key == K_LEFT:
+				if event.key == K_a:
 					ship1.horizontalSlow()
-				if event.key == K_RIGHT:
+				if event.key == K_d:
 					ship1.horizontalSlow()
 				
 
@@ -120,26 +117,31 @@ def start(player):
 			if coord[0] >= WINDOWWIDTH :
 				laserlist.remove(x)
 			else:
-				xc = x.movex()
-				yc = x.movey()
+				c = x.move()
+				xc = c[0]
+				yc = c[1]
 
 			if coord[0] <= 0 :
 				laserlist.remove(x)
 			else:
-				xc = x.movex()
-				yc = x.movey()
+				c = x.move()
+				xc = c[0]
+				yc = c[1]
+
 	
 			if coord[1] >= WINDOWHEIGHT :
 				laserlist.remove(x)
 			else:
-				xc = x.movex()
-				yc = x.movey()
+				c = x.move()
+				xc = c[0]
+				yc = c[1]
 	
 			if coord[1] <= 0 :
 				laserlist.remove(x)
 			else:
-				xc = x.movex()
-				yc = x.movey()
+				c = x.move()
+				xc = c[0]
+				yc = c[1]
 
 			x.setSpeedZero()
 
@@ -175,7 +177,7 @@ def listener(clientsocket):
 			x = data2[4].split('.')
 			y = data2[0].split('.')
 			z = data2[1].split('.')
-			l=laser(int(y[0]),int(z[0]),10,10,int(x[0]))
+			l=laser(int(y[0]),int(z[0]),10,10,float(x[0]))
 			laserlist.append(l)
 
 		elif data2[3] == 'move':

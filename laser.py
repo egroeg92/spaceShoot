@@ -8,10 +8,10 @@ import pygame
 
 clock = pygame.time.Clock()
 fps = clock.tick(30) / 1000.0
-projSpeed = 1
 Hspeed = 10
 Vspeed = 10
 
+from math import *
 
 
 class laser:
@@ -24,8 +24,22 @@ class laser:
 		self.x_speed = hspeed
 		self.y_speed = vspeed
 		self.dirrection = dir
-
 		
+		if dir >= 0 and dir < pi/2:
+			self.x_coor-=10
+			# self.y_coor-=10
+			
+		if dir>= pi/2 and dir < pi:
+			self.x_coor+=10
+			# self.y_coor-=10
+		if dir>=-pi and dir < -pi/2:
+			self.x_coor+=10
+			# self.y_coor+=10
+			
+		if dir>= -pi/2 and dir < 0:
+			self.x_coor-=10
+			# self.y_coor+=10
+			
 	def getCoord(self):
 		return (self.x_coor,self.y_coor)
 	
@@ -34,44 +48,15 @@ class laser:
 	def sety(self,y):
 		self.y_coor = y
 
-	def movex(self):
-		dirr = self.dirrection
-		if dirr == 0 or dirr == 2:
-			r = 0
-
-		if dirr == 1:
-			r = 1
-
-		if dirr == 3:
-			r = -1
-
+	def move(self):
 		projSpeed = 15
-		try:
-			self.x_coor += fps * (r * (projSpeed)) 
-		except UnboundLocalError:
-			return self.x_coor
-		return self.x_coor
+		dirr= self.dirrection
+		dirr += pi/2
 
+		self.y_coor += fps * (projSpeed * cos(-dirr))
+		self.x_coor += fps * (projSpeed * sin(-dirr))
 
-	def movey(self):
-		dirr = self.dirrection
-		if dirr == 1 or dirr == 3:
-			r = 0
-
-		if dirr == 0:
-			r = -1
-
-		if dirr == 2:
-			r = 1
-		projSpeed = 15
-			
-		try:
-			self.y_coor += fps * (r * (projSpeed)) 
-		except UnboundLocalError:	
-			return self.y_coor
-
-
-		return self.y_coor
+		return (self.x_coor, self.y_coor)
 	
 	def setSpeedZero(self):
 		projSpeed =0
