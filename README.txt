@@ -4,13 +4,22 @@ SPACE SHOOTER GAME BY GEORGE MACRAE
 basic 2 player network game using sockets
 uses pygame : download at http://pygame.org/download.shtml
 
+SETUP:
+
+run server
+run game
+run another game
+
+if connection error, change host in server (line 27) to your ip address
+do the same in game to match ip of server
+
 CONTROLS 
 shoot w,a,s,d
 move arrow keys
 
 Goals:
 
-include ship sprites/classes
+include ship sprites
 include mouse control for shooting
 
 Basically this is a game I made in a few hours and hope to improve it here and there when I have time.

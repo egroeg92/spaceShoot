@@ -9,6 +9,7 @@ import pygame, sys
 from pygame.locals import *
 
 from laser import *
+from ship import*
 
 from pygame.locals import *
 from socket import *
@@ -35,46 +36,21 @@ def start(player):
 	back = pygame.Surface((WINDOWWIDTH,WINDOWHEIGHT))
 	background = back.convert()
 	background.fill((0,0,0))
-	ship = pygame.Surface((10,10))
 	
 	global ship1
-	ship1 = ship.convert()
-	ship1.fill((0,255,0))
-
-
 	global ship2
-	global ship2_Vmove 
-
-	global ship2_Hmove
-	global ship2_x
-	global ship2_y
-	global ship1_x
-	global ship1_y
 
 	global laserlist
 
-	ship2 = ship.convert()
-	ship2.fill((0,0,255))
-
 	Vspeed = 10.
 	Hspeed = 10.
-	ship1_Vmove = 0
-	ship1_Hmove = 0
-	
-	ship1_x = 220
-	ship1_y = 620
-	ship2_x = 20
-	ship2_y = 620
 	
 	if player == 'p1':
-		ship1_x = 20
-		ship1_y = 620
-		ship2_x = 220
-		ship2_y = 620
-
-
-	ship2_Vmove = 0
-	ship2_Hmove = 0
+		ship2 = ship(60,400,(0,0,255),WINDOWWIDTH,WINDOWHEIGHT)
+		ship1 = ship(20,500,(0,255,0),WINDOWWIDTH,WINDOWHEIGHT)
+	else:
+		ship1 = ship(60,400,(0,0,255),WINDOWWIDTH,WINDOWHEIGHT)
+		ship2 = ship(20,500,(0,255,0),WINDOWWIDTH,WINDOWHEIGHT)
 	
 	laserlist = []
 
@@ -87,64 +63,53 @@ def start(player):
 				exit()
 			if event.type == KEYDOWN:
 				if event.key == K_UP:
-					ship1_Vmove = -Vspeed * fps
+					ship1.moveUp()
 				elif event.key == K_DOWN:
-					ship1_Vmove = Vspeed * fps
+					ship1.moveDown()
 				elif event.key == K_LEFT:
-					ship1_Hmove = -Hspeed * fps
+					ship1.moveLeft()
 				elif event.key == K_RIGHT:
-					ship1_Hmove = Hspeed * fps
+					ship1.moveRight()
 				
 				elif event.key == K_w:
-					l=laser(ship1_x,ship1_y-20,Hspeed,Vspeed,0)
+					l=laser(ship1.getX(),ship1.getY()-20,Hspeed,Vspeed,0)
 					laserlist.append(l)
-					clientsocket.send(str(ship1_x)+":"+str(ship1_y-20)+':'+str(player)+':laser:0')
+					clientsocket.send(str(ship1.getX())+":"+str(ship1.getY()-20)+':'+str(player)+':laser:0')
 
 				elif event.key == K_d:
-					l=laser(ship1_x+20,ship1_y,Hspeed,Vspeed,1)
+					l=laser(ship1.getX()+20,ship1.getY(),Hspeed,Vspeed,1)
 					laserlist.append(l)
-					clientsocket.send(str(ship1_x+20)+":"+str(ship1_y)+':'+str(player)+':laser:1')
+					clientsocket.send(str(ship1.getX()+20)+":"+str(ship1.getY())+':'+str(player)+':laser:1')
 
 				elif event.key == K_s:
-					l=laser(ship1_x,ship1_y+20,Hspeed,Vspeed,2)
+					l=laser(ship1.getX(),ship1.getY()+20,Hspeed,Vspeed,2)
 					laserlist.append(l)
-					clientsocket.send(str(ship1_x)+":"+str(ship1_y+20)+':'+str(player)+':laser:2')
+					clientsocket.send(str(ship1.getX())+":"+str(ship1.getY()+20)+':'+str(player)+':laser:2')
 
 				elif event.key == K_a:
-					l=laser(ship1_x-20,ship1_y,Hspeed,Vspeed,3)
+					l=laser(ship1.getX()-20,ship1.getY(),Hspeed,Vspeed,3)
 					laserlist.append(l)
-					clientsocket.send(str(ship1_x-20)+":"+str(ship1_y)+':'+str(player)+':laser:3')
+					clientsocket.send(str(ship1.getX()-20)+":"+str(ship1.getY())+':'+str(player)+':laser:3')
 
 
 			elif event.type == KEYUP:
 				if event.key == K_UP:
-					ship1_Vmove = 0.
+					ship1.verticalSlow()
 				if event.key == K_DOWN:
-					ship1_Vmove = 0.
+					ship1.verticalSlow()
 				if event.key == K_LEFT:
-					ship1_Hmove = 0.
+					ship1.horizontalSlow()
 				if event.key == K_RIGHT:
-					ship1_Hmove = 0.
-
+					ship1.horizontalSlow()
+				
 
 		screen.blit(background,(0,0))
-		screen.blit(ship1,(ship1_x,ship1_y))
+		screen.blit(ship1.getShip(),(ship1.getX(),ship1.getY()))
 
-		screen.blit(ship2,(ship2_x,ship2_y))
+		screen.blit(ship2.getShip(),(ship2.getX(),ship2.getY()))
 
-
-   		ship1_x += ship1_Hmove
-		ship1_y += ship1_Vmove 
-		
-		clientsocket.send(str(ship1_x)+":"+str(ship1_y)+':'+str(player)+':move')
-
-
-   		if ship1_x >= WINDOWWIDTH : ship1_x = WINDOWWIDTH
-		if ship1_x <= 0 : ship1_x = 0
-
-		if ship1_y >= WINDOWHEIGHT : ship1_y = WINDOWHEIGHT
-		if ship1_y <= 0 : ship1_y = 0
-
+		ship1.updatePosition()
+		clientsocket.send(str(ship1.getX())+":"+str(ship1.getY())+':'+str(player)+':move')
 
 		for x in laserlist:
 			p = pygame.Surface((10,10))
@@ -179,18 +144,17 @@ def start(player):
 			x.setSpeedZero()
 
 
-			if xc +10 > ship2_x and xc - 10 < ship2_x and yc + 10 > ship2_y and yc - 10 < ship2_y:
+			if xc +10 > ship2.getX() and xc - 10 < ship2.getX() and yc + 10 > ship2.getY() and yc - 10 < ship2.getY():
 				laserlist.remove(x)
 				score = score+1
 				print 'SCORE: YOU= '+str(score)+' ENEMY= '+str(score_en)
 
-			if xc +10 > ship1_x and xc - 10 < ship1_x and yc + 10 > ship1_y and yc - 10 < ship1_y:
+			if xc +10 > ship1.getX() and xc - 10 < ship1.getX() and yc + 10 > ship1.getY() and yc - 10 < ship1.getY():
 				laserlist.remove(x)
 				score_en +=1
 
 				print 'SCORE: YOU= '+str(score)+' ENEMY= '+str(score_en)
-				# if yc -2 < ship2_y and ship2_y < yc +2:
-				# 	print "hit"
+
 			screen.blit(p1,(xc,yc))
 
 		pygame.display.update()
@@ -219,8 +183,8 @@ def listener(clientsocket):
 				x = data2[0].split('.')
 				y = data2[1].split('.')
 
-				ship2_x = float(x[0])
-				ship2_y = float(y[0])
+				ship2.setX(float(x[0]))
+				ship2.setY(float(y[0]))
 
 			except ValueError:
 				print "ValueError"
