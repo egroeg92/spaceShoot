@@ -183,7 +183,8 @@ def listener(clientsocket):
 		data2 = data.split(':')
 
 		if data2[3] == 'laser':
-			x = data2[4]
+			x = data2[4].split('.')
+			x = x[0]+'.'+x[1]
 			y = data2[0].split('.')
 			z = data2[1].split('.')
 			l=laser(int(y[0]),int(z[0]),10,10,float(x))
