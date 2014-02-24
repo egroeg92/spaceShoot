@@ -11,7 +11,6 @@ from pygame.locals import *
 from laser import *
 from ship import*
 
-from pygame.locals import *
 from socket import *
 
 import threading
@@ -25,12 +24,17 @@ WINDOWHEIGHT = 750
 
 
 def start(player):
-
+	health = 10
+	health2= 10
 	pygame.init()
 	global screen
+
+
 	screen = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
 	pygame.display.set_caption('Space')
 
+	FONT = pygame.font.SysFont("monospace", 14)
+	
 	score = 0
 	score_en = 0
 
@@ -150,15 +154,19 @@ def start(player):
 			if xc +10 > ship2.getX() and xc - 10 < ship2.getX() and yc + 10 > ship2.getY() and yc - 10 < ship2.getY():
 				laserlist.remove(x)
 				score +=1
+				health2 -=1
 				print 'SCORE: YOU= '+str(score)+' ENEMY= '+str(score_en)
 
 			if xc +10 > ship1.getX() and xc - 10 < ship1.getX() and yc + 10 > ship1.getY() and yc - 10 < ship1.getY():
 				laserlist.remove(x)
 				score_en +=1
+				health-=1
 				print 'SCORE: YOU= '+str(score)+' ENEMY= '+str(score_en)
 
 			screen.blit(p1,(xc,yc))
 
+		SCORE = FONT.render("YOU : " +str(health)+"  ENEMY : "+str(health2),1,(255,255,0))
+		screen.blit(SCORE,(WINDOWWIDTH/2 -10,10))
 		pygame.display.update()
 
 

@@ -18,8 +18,7 @@ move w,a,s,d
 shoot mouse
 
 TODO:
-
-problem with shooting and moving at the same time
+game over when a health reaches 0
 include ship sprites
 
 
