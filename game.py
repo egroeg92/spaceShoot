@@ -63,16 +63,7 @@ def start(player):
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				exit()
-			if event.type == KEYDOWN:
-				if event.key == K_w:
-					ship1.moveUp()
-				elif event.key == K_s:
-					ship1.moveDown()
-				elif event.key == K_a:
-					ship1.moveLeft()
-				elif event.key == K_d:
-					ship1.moveRight()
-				
+
 			if event.type == MOUSEBUTTONDOWN:
 
 				mouse_p = pygame.mouse.get_pos()
@@ -82,14 +73,24 @@ def start(player):
 				y = ship1.getY()
 				try:
 					rads = atan2((y-mouse_y ),(x-mouse_x))
-					
 					l = laser(ship1.getX(),ship1.getY(),Hspeed,Vspeed,rads)
 					laserlist.append(l)
 					clientsocket.send(str(ship1.getX())+":"+str(ship1.getY())+':'+str(player)+':laser:'+str(rads))
 
 				except ZeroDivisionError:
 					print 'YOLO'
-			elif event.type == KEYUP:
+			if event.type == KEYDOWN:
+				if event.key == K_w:
+					ship1.moveUp()
+				if event.key == K_s:
+					ship1.moveDown()
+				if event.key == K_a:
+					ship1.moveLeft()
+				if event.key == K_d:
+					ship1.moveRight()
+				
+
+			if event.type == KEYUP:
 				if event.key == K_w:
 					ship1.verticalSlow()
 				if event.key == K_s:
@@ -148,18 +149,18 @@ def start(player):
 
 			if xc +10 > ship2.getX() and xc - 10 < ship2.getX() and yc + 10 > ship2.getY() and yc - 10 < ship2.getY():
 				laserlist.remove(x)
-				score = score+1
+				score +=1
 				print 'SCORE: YOU= '+str(score)+' ENEMY= '+str(score_en)
 
 			if xc +10 > ship1.getX() and xc - 10 < ship1.getX() and yc + 10 > ship1.getY() and yc - 10 < ship1.getY():
 				laserlist.remove(x)
 				score_en +=1
-
 				print 'SCORE: YOU= '+str(score)+' ENEMY= '+str(score_en)
 
 			screen.blit(p1,(xc,yc))
 
 		pygame.display.update()
+
 
 def listener(clientsocket):
 	global ship2_x
@@ -174,10 +175,10 @@ def listener(clientsocket):
 		data2 = data.split(':')
 
 		if data2[3] == 'laser':
-			x = data2[4].split('.')
+			x = data2[4]
 			y = data2[0].split('.')
 			z = data2[1].split('.')
-			l=laser(int(y[0]),int(z[0]),10,10,float(x[0]))
+			l=laser(int(y[0]),int(z[0]),10,10,float(x))
 			laserlist.append(l)
 
 		elif data2[3] == 'move':

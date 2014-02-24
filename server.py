@@ -14,7 +14,10 @@ def handler(clientsocket, clientaddr):
     while 1:
         data = '' 
         data = clientsocket.recv(1024)
+
         datal = data.split(':')
+        if datal[3] != 'move':
+            print data
         if datal[2] == 'p1':        
             p2_socket.send(data)
         else:
