@@ -57,6 +57,8 @@ def start(player):
 		ship1 = ship(60,400,(0,0,255),WINDOWWIDTH,WINDOWHEIGHT)
 		ship2 = ship(20,500,(0,255,0),WINDOWWIDTH,WINDOWHEIGHT)
 	
+	r_thread = threading.Thread(target = listener, args = (clientsocket,))
+ 	r_thread.start()
 	laserlist = []
 
 	clock = pygame.time.Clock()
@@ -181,26 +183,27 @@ def listener(clientsocket):
 		data = clientsocket.recv(1024)
 		
 		data2 = data.split(':')
+		try:
+			if data2[3] == 'laser':
+				x = data2[4].split('.')
+				x = x[0]+'.'+x[1]
+				y = data2[0].split('.')
+				z = data2[1].split('.')
+				l=laser(int(y[0]),int(z[0]),10,10,float(x))
+				laserlist.append(l)
 
-		if data2[3] == 'laser':
-			x = data2[4].split('.')
-			x = x[0]+'.'+x[1]
-			y = data2[0].split('.')
-			z = data2[1].split('.')
-			l=laser(int(y[0]),int(z[0]),10,10,float(x))
-			laserlist.append(l)
+			elif data2[3] == 'move':
+				try:
+					x = data2[0].split('.')
+					y = data2[1].split('.')
 
-		elif data2[3] == 'move':
-			try:
-				x = data2[0].split('.')
-				y = data2[1].split('.')
+					ship2.setX(float(x[0]))
+					ship2.setY(float(y[0]))
 
-				ship2.setX(float(x[0]))
-				ship2.setY(float(y[0]))
-
-			except ValueError:
-				print "ValueError"
-		
+				except ValueError:
+					print "ValueError"
+		except IndexError:
+			continue
 
 if __name__ == '__main__':
 
@@ -215,7 +218,5 @@ if __name__ == '__main__':
  	data = clientsocket.recv(1024)
  	print str(data)
 	player = data
-	r_thread = threading.Thread(target = listener, args = (clientsocket,))
- 	r_thread.start()
  	
  	start(player)
